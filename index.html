@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中南地区自学习数据看板 (0713-0720)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0c0e1a 0%, #1a1d35 50%, #0c0e1a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            animation: fadeInUp 0.8s ease;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+        .kpi-card:nth-child(2) { animation-delay: 0.2s; }
+        .kpi-card:nth-child(3) { animation-delay: 0.3s; }
+        .kpi-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .kpi-card:nth-child(1) .kpi-value { color: #00d4ff; }
+        .kpi-card:nth-child(2) .kpi-value { color: #7c3aed; }
+        .kpi-card:nth-child(3) .kpi-value { color: #f472b6; }
+        .kpi-label {
+            font-size: 1rem;
+            color: #8892b0;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .chart-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            animation: fadeInUp 1s ease;
+        }
+        .chart-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ccd6f6;
+        }
+        .table-container {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            overflow-x: auto;
+            animation: fadeInUp 1.2s ease;
+        }
+        .table-container h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ccd6f6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        th {
+            background: rgba(255,255,255,0.05);
+            color: #8892b0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr:hover { background: rgba(255,255,255,0.03); }
+        .rate-cell {
+            font-weight: 600;
+        }
+        .rate-high { color: #4ade80; }
+        .rate-mid { color: #fbbf24; }
+        .rate-low { color: #f87171; }
+        .bar-cell {
+            position: relative;
+        }
+        .bar-bg {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 6px;
+            border-radius: 3px;
+            opacity: 0.3;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #8892b0;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .pulse { animation: pulse 2s infinite; }
+        @media (max-width: 768px) {
+            .kpi-cards { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>中南地区自学习数据看板</h1>
+            <p class="subtitle">数据周期：2025.07.13 - 2025.07.20</p>
+        </div>
+
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-value">15,339</div>
+                <div class="kpi-label">新增提交数</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">627</div>
+                <div class="kpi-label">新增启用数</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">1,419</div>
+                <div class="kpi-label">新增回复数</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>各品类新增提交数</h3>
+                <canvas id="submitChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>各品类启用率</h3>
+                <canvas id="rateChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>品类数据分布</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>提交率 vs 启用率</h3>
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>详细数据表</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>品类</th>
+                        <th>提交总数</th>
+                        <th>启用数</th>
+                        <th>可提交数</th>
+                        <th>QA回复数</th>
+                        <th>新增提交</th>
+                        <th>新增启用</th>
+                        <th>提交率</th>
+                        <th>启用率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>家具用品</td>
+                        <td>21,713</td>
+                        <td>616</td>
+                        <td>47,548</td>
+                        <td>4,653</td>
+                        <td>7,181</td>
+                        <td>250</td>
+                        <td class="rate-cell rate-mid">15.10%</td>
+                        <td class="rate-cell rate-low">2.84%</td>
+                    </tr>
+                    <tr>
+                        <td>运动/母婴</td>
+                        <td>7,499</td>
+                        <td>160</td>
+                        <td>37,048</td>
+                        <td>1,824</td>
+                        <td>2,700</td>
+                        <td>2</td>
+                        <td class="rate-cell rate-mid">7.29%</td>
+                        <td class="rate-cell rate-low">2.13%</td>
+                    </tr>
+                    <tr>
+                        <td>五金工具</td>
+                        <td>18,348</td>
+                        <td>1,625</td>
+                        <td>17,185</td>
+                        <td>5,095</td>
+                        <td>1,799</td>
+                        <td>93</td>
+                        <td class="rate-cell rate-mid">10.47%</td>
+                        <td class="rate-cell rate-mid">8.86%</td>
+                    </tr>
+                    <tr>
+                        <td>家电</td>
+                        <td>2,685</td>
+                        <td>10</td>
+                        <td>5,617</td>
+                        <td>181</td>
+                        <td>1,294</td>
+                        <td>0</td>
+                        <td class="rate-cell rate-high">23.04%</td>
+                        <td class="rate-cell rate-low">0.37%</td>
+                    </tr>
+                    <tr>
+                        <td>灯具</td>
+                        <td>2,066</td>
+                        <td>100</td>
+                        <td>5,531</td>
+                        <td>223</td>
+                        <td>1,040</td>
+                        <td>20</td>
+                        <td class="rate-cell rate-high">18.80%</td>
+                        <td class="rate-cell rate-low">4.84%</td>
+                    </tr>
+                    <tr>
+                        <td>家居收纳</td>
+                        <td>2,116</td>
+                        <td>397</td>
+                        <td>3,724</td>
+                        <td>931</td>
+                        <td>620</td>
+                        <td>30</td>
+                        <td class="rate-cell rate-high">16.65%</td>
+                        <td class="rate-cell rate-high">18.76%</td>
+                    </tr>
+                    <tr>
+                        <td>LAZADA</td>
+                        <td>447</td>
+                        <td>148</td>
+                        <td>6,021</td>
+                        <td>44</td>
+                        <td>363</td>
+                        <td>114</td>
+                        <td class="rate-cell rate-low">6.03%</td>
+                        <td class="rate-cell rate-high">33.11%</td>
+                    </tr>
+                    <tr>
+                        <td>3C</td>
+                        <td>1,040</td>
+                        <td>14</td>
+                        <td>9,398</td>
+                        <td>28</td>
+                        <td>166</td>
+                        <td>10</td>
+                        <td class="rate-cell rate-low">1.77%</td>
+                        <td class="rate-cell rate-low">1.35%</td>
+                    </tr>
+                    <tr>
+                        <td>宠物用品</td>
+                        <td>477</td>
+                        <td>136</td>
+                        <td>3,954</td>
+                        <td>606</td>
+                        <td>122</td>
+                        <td>91</td>
+                        <td class="rate-cell rate-low">3.09%</td>
+                        <td class="rate-cell rate-high">28.51%</td>
+                    </tr>
+                    <tr>
+                        <td>汽摩配</td>
+                        <td>147</td>
+                        <td>47</td>
+                        <td>3,319</td>
+                        <td>498</td>
+                        <td>50</td>
+                        <td>17</td>
+                        <td class="rate-cell rate-low">1.51%</td>
+                        <td class="rate-cell rate-high">31.97%</td>
+                    </tr>
+                    <tr>
+                        <td>新加坡</td>
+                        <td>138</td>
+                        <td>1</td>
+                        <td>3,182</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td class="rate-cell rate-low">0.06%</td>
+                        <td class="rate-cell rate-low">0.72%</td>
+                    </tr>
+                    <tr>
+                        <td>个护箱包</td>
+                        <td>290</td>
+                        <td>14</td>
+                        <td>212</td>
+                        <td>6</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td class="rate-cell rate-low">0.94%</td>
+                        <td class="rate-cell rate-low">4.83%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Color palette
+        const colors = [
+            '#00d4ff', '#7c3aed', '#f472b6', '#4ade80', '#fbbf24',
+            '#f87171', '#818cf8', '#2dd4bf', '#fb923c', '#a78bfa',
+            '#38bdf8', '#e879f9'
+        ];
+
+        // Data
+        const categories = ['家具用品', '运动/母婴', '五金工具', '家电', '灯具', '家居收纳', 'LAZADA', '3C', '宠物用品', '汽摩配', '新加坡', '个护箱包'];
+        const submits = [7181, 2700, 1799, 1294, 1040, 620, 363, 166, 122, 50, 2, 2];
+        const submitRates = [15.10, 7.29, 10.47, 23.04, 18.80, 16.65, 6.03, 1.77, 3.09, 1.51, 0.06, 0.94];
+        const enableRates = [2.84, 2.13, 8.86, 0.37, 4.84, 18.76, 33.11, 1.35, 28.51, 31.97, 0.72, 4.83];
+
+        // Submit Chart
+        new Chart(document.getElementById('submitChart'), {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: '新增提交数',
+                    data: submits,
+                    backgroundColor: colors.map(c => c + '80'),
+                    borderColor: colors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#e0e0e0',
+                        font: { size: 11, weight: 'bold' },
+                        formatter: (value) => value >= 100 ? value.toLocaleString() : value,
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        cornerRadius: 8,
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8892b0', font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#8892b0' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Rate Chart
+        new Chart(document.getElementById('rateChart'), {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [
+                    {
+                        label: '提交率 (%)',
+                        data: submitRates,
+                        backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                        borderColor: '#00d4ff',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    },
+                    {
+                        label: '启用率 (%)',
+                        data: enableRates,
+                        backgroundColor: 'rgba(244, 114, 182, 0.6)',
+                        borderColor: '#f472b6',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#8892b0', padding: 20 }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8892b0', font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#8892b0' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        const totalSubmits = submits.reduce((a, b) => a + b, 0);
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: submits,
+                    backgroundColor: colors.map(c => c + 'cc'),
+                    borderColor: '#1a1d35',
+                    borderWidth: 3,
+                    hoverOffset: 20
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                cutout: '50%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#8892b0',
+                            padding: 10,
+                            font: { size: 11 },
+                            generateLabels: (chart) => {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: `${label} (${((data.datasets[0].data[i] / totalSubmits) * 100).toFixed(1)}%)`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    strokeStyle: 'transparent',
+                                    index: i
+                                }));
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' },
+                        formatter: (value) => {
+                            const pct = (value / totalSubmits * 100).toFixed(1);
+                            return pct >= 3 ? `${pct}%` : '';
+                        },
+                        textShadow: true,
+                        shadowBlur: 4,
+                        shadowColor: 'rgba(0,0,0,0.8)',
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (ctx) => {
+                                const value = ctx.raw;
+                                const pct = (value / totalSubmits * 100).toFixed(1);
+                                return ` ${ctx.label}: ${value.toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Rate Comparison Chart (Line)
+        new Chart(document.getElementById('scatterChart'), {
+            type: 'line',
+            data: {
+                labels: categories,
+                datasets: [
+                    {
+                        label: '提交率 (%)',
+                        data: submitRates,
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#00d4ff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                    },
+                    {
+                        label: '启用率 (%)',
+                        data: enableRates,
+                        borderColor: '#f472b6',
+                        backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#f472b6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#8892b0',
+                            padding: 20,
+                            font: { size: 13 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            afterBody: (ctx) => {
+                                const i = ctx[0].dataIndex;
+                                const diff = (enableRates[i] - submitRates[i]).toFixed(2);
+                                return `\n差值: ${diff > 0 ? '+' : ''}${diff}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8892b0', font: { size: 10 } },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        title: { display: true, text: '百分比 (%)', color: '#8892b0' },
+                        ticks: { color: '#8892b0' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
