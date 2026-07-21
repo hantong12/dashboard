@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中南地区自学习数据看板 (0713-0720)</title>
+    <title>中南各品类自学习数据看板 (0713-0720)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
@@ -179,7 +179,7 @@
 <body>
     <div class="dashboard">
         <div class="header">
-            <h1>中南地区自学习数据看板</h1>
+            <h1>中南各品类自学习数据看板</h1>
             <p class="subtitle">数据周期：2025.07.13 - 2025.07.20</p>
         </div>
 
@@ -508,15 +508,16 @@
                     legend: {
                         position: 'right',
                         labels: {
-                            color: '#8892b0',
+                            color: '#ffffff',
                             padding: 10,
-                            font: { size: 11 },
+                            font: { size: 12 },
                             generateLabels: (chart) => {
                                 const data = chart.data;
                                 return data.labels.map((label, i) => ({
                                     text: `${label} (${((data.datasets[0].data[i] / totalSubmits) * 100).toFixed(1)}%)`,
                                     fillStyle: data.datasets[0].backgroundColor[i],
                                     strokeStyle: 'transparent',
+                                    fontColor: '#ffffff',
                                     index: i
                                 }));
                             }
