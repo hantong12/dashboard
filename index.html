@@ -227,7 +227,7 @@
     <div class="dashboard">
         <div class="header">
             <h1>中南各品类自学习数据看板</h1>
-            <p class="subtitle">数据周期：2025.07.06 → 07.12 → 07.20 → 07.26（三周趋势）</p>
+            <p class="subtitle">数据周期：2025.07.06 → 07.12 → 07.19 → 07.26（三周趋势）</p>
         </div>
 
         <div class="kpi-cards">
@@ -318,7 +318,7 @@
             'LAZADA', '3C', '宠物', '汽摩配', '新加坡', '个护箱包'
         ];
 
-        // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0720, w2: 0720-0726]
+        // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0719, w2: 0720-0726]
         const raw = {
             submitTotal: [
                 [14532, 4799, 16549, 1391, 1026, 1496, 84, 874, 355, 97, 136, 288],
@@ -337,7 +337,7 @@
             ],
             qaReply: [
                 [4061, 1387, 4937, 161, 155, 935, 4, 2, 568, 459, 0, 9],
-                [4653, 1824, 5095, 181, 223, 931, 44, 28, 606, 498, 1, 6],
+                [4108, 1635, 4487, 153, 198, 813, 36, 3, 522, 454, 1, 6],
                 [4476, 1406, 4361, 228, 215, 752, 85, 575, 888, 339, 0, 6]
             ]
         };
@@ -384,7 +384,7 @@
         new Chart(document.getElementById('submitChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [raw.submitTotal[0][idx], raw.submitTotal[1][idx], raw.submitTotal[2][idx]],
@@ -434,7 +434,7 @@
         new Chart(document.getElementById('rateChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [enableRate[0][idx] * 100, enableRate[1][idx] * 100, enableRate[2][idx] * 100],
@@ -662,7 +662,7 @@
         new Chart(document.getElementById('enableLineChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [raw.enabled[0][idx], raw.enabled[1][idx], raw.enabled[2][idx]],
@@ -746,7 +746,7 @@
             const r1 = document.createElement('tr');
             r1.className = 'week-compare-row';
             r1.innerHTML = `
-                <td><span class="week-label week-w1">0713-0720</span></td>
+                <td><span class="week-label week-w1">0713-0719</span></td>
                 <td>${fmt(raw.submitTotal[1][idx])}</td>
                 <td>${fmt(raw.enabled[1][idx])}</td>
                 <td>${fmt(raw.submittable[1][idx])}</td>
