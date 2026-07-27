@@ -261,11 +261,11 @@
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>品类提交数分布（0720-0727）</h3>
+                <h3>品类新增提交数分布（0720-0727）</h3>
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>品类启用数分布（0720-0727）</h3>
+                <h3>品类新增启用数分布（0720-0727）</h3>
                 <canvas id="enablePieChart"></canvas>
             </div>
         </div>
@@ -481,7 +481,7 @@
         });
 
         // ========== SUBMIT PIE CHART ==========
-        const pieData = s(raw.submitTotal[2]);
+        const pieData = s(newSubmit[2]);
         const totalSubmits = pieData.reduce((a, b) => a + b, 0);
         new Chart(document.getElementById('pieChart'), {
             type: 'doughnut',
@@ -543,7 +543,7 @@
         });
 
         // ========== ENABLE PIE CHART ==========
-        const enablePieData = s(raw.enabled[2]);
+        const enablePieData = s(newEnabled[2]);
         const totalEnabled = enablePieData.reduce((a, b) => a + b, 0);
         new Chart(document.getElementById('enablePieChart'), {
             type: 'doughnut',
