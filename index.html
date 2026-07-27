@@ -342,6 +342,18 @@
             ]
         };
 
+        // Calculate deltas
+        const newSubmit = [[], [], []];
+        const newEnabled = [[], [], []];
+        const newReply = [[], [], []];
+        for (let w = 1; w < 3; w++) {
+            for (let i = 0; i < categories.length; i++) {
+                newSubmit[w][i] = raw.submitTotal[w][i] - raw.submitTotal[w-1][i];
+                newEnabled[w][i] = raw.enabled[w][i] - raw.enabled[w-1][i];
+                newReply[w][i] = raw.qaReply[w][i] - raw.qaReply[w-1][i];
+            }
+        }
+
         // Calculate rates
         // submitRate = 新增提交数 / 可提交数 (w0无法计算，设为0)
         // enableRate = 启用知识数 / 提交知识数
@@ -353,18 +365,6 @@
             submitRate[2][i] = raw.submittable[2][i] > 0 ? newSubmit[2][i] / raw.submittable[2][i] : 0;
             for (let w = 0; w < 3; w++) {
                 enableRate[w][i] = raw.submitTotal[w][i] > 0 ? raw.enabled[w][i] / raw.submitTotal[w][i] : 0;
-            }
-        }
-
-        // Calculate deltas
-        const newSubmit = [[], [], []];
-        const newEnabled = [[], [], []];
-        const newReply = [[], [], []];
-        for (let w = 1; w < 3; w++) {
-            for (let i = 0; i < categories.length; i++) {
-                newSubmit[w][i] = raw.submitTotal[w][i] - raw.submitTotal[w-1][i];
-                newEnabled[w][i] = raw.enabled[w][i] - raw.enabled[w-1][i];
-                newReply[w][i] = raw.qaReply[w][i] - raw.qaReply[w-1][i];
             }
         }
 
