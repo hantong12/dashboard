@@ -272,7 +272,7 @@
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>提交率 vs 启用率（最近两周对比）</h3>
+                <h3>本周提交率 vs 启用率（0720-0727）</h3>
                 <canvas id="lineChart"></canvas>
             </div>
             <div class="chart-card">
@@ -604,51 +604,42 @@
             }
         });
 
-        // ========== LINE CHART (submitRate vs enableRate, last 2 weeks) ==========
+        // ========== BAR CHART (submitRate vs enableRate, this week) ==========
         new Chart(document.getElementById('lineChart'), {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: s(catShort),
                 datasets: [
                     {
-                        label: '提交率 0713-0720',
-                        data: s(submitRate[1]).map(v => (v * 100).toFixed(1)),
-                        borderColor: 'rgba(129, 140, 248, 0.7)',
-                        borderWidth: 2, borderDash: [6, 4],
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#818cf8', pointRadius: 5,
-                    },
-                    {
-                        label: '提交率 0720-0727',
+                        label: '提交率 (0720-0727)',
                         data: s(submitRate[2]).map(v => (v * 100).toFixed(1)),
+                        backgroundColor: 'rgba(0, 212, 255, 0.6)',
                         borderColor: '#00d4ff',
-                        borderWidth: 3,
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#00d4ff', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 6,
+                        borderWidth: 2,
+                        borderRadius: 6,
                     },
                     {
-                        label: '启用率 0713-0720',
-                        data: s(enableRate[1]).map(v => (v * 100).toFixed(1)),
-                        borderColor: 'rgba(244, 114, 182, 0.7)',
-                        borderWidth: 2, borderDash: [6, 4],
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#f472b6', pointRadius: 5,
-                    },
-                    {
-                        label: '启用率 0720-0727',
+                        label: '启用率 (0720-0727)',
                         data: s(enableRate[2]).map(v => (v * 100).toFixed(1)),
+                        backgroundColor: 'rgba(244, 114, 182, 0.6)',
                         borderColor: '#f472b6',
-                        borderWidth: 3,
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#f472b6', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 6,
+                        borderWidth: 2,
+                        borderRadius: 6,
                     }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
-                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { labels: { color: '#8892b0', padding: 15, font: { size: 11 } } },
+                    legend: { labels: { color: '#8892b0', padding: 20 } },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#e0e0e0',
+                        font: { size: 9, weight: 'bold' },
+                        formatter: (v) => v >= 5 ? v + '%' : '',
+                    },
                     tooltip: {
                         backgroundColor: 'rgba(0,0,0,0.85)',
                         padding: 14,
@@ -657,10 +648,10 @@
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { display: false } },
                     y: {
                         title: { display: true, text: '百分比 (%)', color: '#8892b0' },
-                        ticks: { color: '#8892b0' },
+                        ticks: { color: '#8892b0', callback: v => v + '%' },
                         grid: { color: 'rgba(255,255,255,0.05)' }
                     }
                 }
