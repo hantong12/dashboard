@@ -59,7 +59,6 @@
         .kpi-card:nth-child(2) .kpi-value { color: #7c3aed; }
         .kpi-card:nth-child(3) .kpi-value { color: #f472b6; }
         .kpi-label { font-size: 1rem; color: #8892b0; }
-        .kpi-sub { font-size: 0.8rem; color: #6b7280; margin-top: 4px; }
         .kpi-change {
             display: inline-block;
             margin-top: 8px;
@@ -70,7 +69,6 @@
         }
         .kpi-change.up { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
         .kpi-change.down { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-        .kpi-change.flat { background: rgba(136, 146, 176, 0.15); color: #8892b0; }
 
         /* Charts */
         .charts-grid {
@@ -105,9 +103,6 @@
             font-size: 1.3rem;
             margin-bottom: 25px;
             color: #ccd6f6;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         .summary-grid {
             display: grid;
@@ -270,8 +265,19 @@
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>提交率 vs 启用率（三周趋势）</h3>
+                <h3>品类启用数分布（0720-0727）</h3>
+                <canvas id="enablePieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>提交率 vs 启用率（最近两周对比）</h3>
                 <canvas id="lineChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>各品类启用数（三周趋势）</h3>
+                <canvas id="enableLineChart"></canvas>
             </div>
         </div>
 
@@ -315,28 +321,28 @@
         // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0720, w2: 0720-0727]
         const raw = {
             submitTotal: [
-                [14532, 4799, 16549, 1391, 1026, 1496, 84, 874, 355, 97, 136, 288],  // w0
-                [21713, 7499, 18348, 2685, 2066, 2116, 447, 1040, 477, 147, 138, 290], // w1
-                [28603, 10692, 20440, 3777, 3426, 2861, 768, 1359, 970, 297, 141, 290]  // w2
+                [14532, 4799, 16549, 1391, 1026, 1496, 84, 874, 355, 97, 136, 288],
+                [21713, 7499, 18348, 2685, 2066, 2116, 447, 1040, 477, 147, 138, 290],
+                [28603, 10692, 20440, 3777, 3426, 2861, 768, 1359, 970, 297, 141, 290]
             ],
             enabled: [
-                [366, 158, 1532, 10, 80, 367, 34, 4, 45, 30, 1, 14],   // w0
-                [616, 160, 1625, 10, 100, 397, 148, 14, 136, 47, 1, 14], // w1
-                [1143, 178, 1832, 37, 118, 427, 277, 49, 191, 65, 1, 14]  // w2
+                [366, 158, 1532, 10, 80, 367, 34, 4, 45, 30, 1, 14],
+                [616, 160, 1625, 10, 100, 397, 148, 14, 136, 47, 1, 14],
+                [1143, 178, 1832, 37, 118, 427, 277, 49, 191, 65, 1, 14]
             ],
             submittable: [
-                [49293, 37922, 16881, 6118, 5895, 4057, 3464, 9381, 4050, 3420, 2712, 198],  // w0
-                [47548, 37048, 17185, 5617, 5531, 3724, 6021, 9398, 3954, 3319, 3182, 212],   // w1
-                [36960, 31114, 13944, 4854, 4616, 3084, 3144, 7002, 3477, 2653, 2542, 143]    // w2
+                [49293, 37922, 16881, 6118, 5895, 4057, 3464, 9381, 4050, 3420, 2712, 198],
+                [47548, 37048, 17185, 5617, 5531, 3724, 6021, 9398, 3954, 3319, 3182, 212],
+                [36960, 31114, 13944, 4854, 4616, 3084, 3144, 7002, 3477, 2653, 2542, 143]
             ],
             qaReply: [
-                [4061, 1387, 4937, 161, 155, 935, 4, 2, 568, 459, 0, 9],   // w0
-                [4653, 1824, 5095, 181, 223, 931, 44, 28, 606, 498, 1, 6],  // w1
-                [4476, 1406, 4361, 228, 215, 752, 85, 575, 888, 339, 0, 6]   // w2
+                [4061, 1387, 4937, 161, 155, 935, 4, 2, 568, 459, 0, 9],
+                [4653, 1824, 5095, 181, 223, 931, 44, 28, 606, 498, 1, 6],
+                [4476, 1406, 4361, 228, 215, 752, 85, 575, 888, 339, 0, 6]
             ]
         };
 
-        // Calculate rates: submitRate = submitTotal / submittable, enableRate = enabled / submitTotal
+        // Calculate rates
         const submitRate = [[], [], []];
         const enableRate = [[], [], []];
         for (let w = 0; w < 3; w++) {
@@ -347,7 +353,7 @@
         }
 
         // Calculate deltas
-        const newSubmit = [[], [], []]; // w0 has no delta
+        const newSubmit = [[], [], []];
         const newEnabled = [[], [], []];
         const newReply = [[], [], []];
         for (let w = 1; w < 3; w++) {
@@ -369,119 +375,106 @@
             '#f87171', '#818cf8', '#2dd4bf', '#fb923c', '#a78bfa',
             '#38bdf8', '#e879f9'
         ];
-        const weekColors = ['#4ade80', '#818cf8', '#00d4ff'];
-        const weekBorders = ['#22c55e', '#6366f1', '#0ea5e9'];
 
-        // ========== SUBMIT CHART ==========
+        // ========== SUBMIT LINE CHART ==========
         new Chart(document.getElementById('submitChart'), {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: s(catShort),
-                datasets: [
-                    {
-                        label: '0706-0712',
-                        data: s(newSubmit[1]).map((v, i) => raw.submitTotal[0][sortedIndices[i]] - 0), // show raw for w0
-                        backgroundColor: 'rgba(74, 222, 128, 0.4)',
-                        borderColor: '#4ade80',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: '0713-0720',
-                        data: s(newSubmit[1]),
-                        backgroundColor: 'rgba(129, 140, 248, 0.5)',
-                        borderColor: '#818cf8',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: '0720-0727',
-                        data: s(newSubmit[2]),
-                        backgroundColor: 'rgba(0, 212, 255, 0.6)',
-                        borderColor: '#00d4ff',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    }
-                ]
+                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                datasets: sortedIndices.map((idx, i) => ({
+                    label: catShort[idx],
+                    data: [raw.submitTotal[0][idx], raw.submitTotal[1][idx], raw.submitTotal[2][idx]],
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointBackgroundColor: colors[i],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }))
             },
-            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { labels: { color: '#8892b0', padding: 20 } },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#e0e0e0',
-                        font: { size: 9, weight: 'bold' },
-                        formatter: (v) => v >= 200 ? v.toLocaleString() : '',
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#8892b0', padding: 15, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        padding: 12,
-                        cornerRadius: 8,
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}`
+                        }
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { display: false } },
-                    y: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+                    x: { ticks: { color: '#8892b0', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: {
+                        title: { display: true, text: '提交知识数', color: '#8892b0' },
+                        ticks: { color: '#8892b0', callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
+                    }
                 }
             }
         });
 
-        // ========== ENABLE RATE CHART ==========
+        // ========== ENABLE RATE LINE CHART ==========
         new Chart(document.getElementById('rateChart'), {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: s(catShort),
-                datasets: [
-                    {
-                        label: '启用率 0706-0712',
-                        data: s(enableRate[0]).map(v => (v * 100).toFixed(2)),
-                        backgroundColor: 'rgba(74, 222, 128, 0.4)',
-                        borderColor: '#4ade80',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: '启用率 0713-0720',
-                        data: s(enableRate[1]).map(v => (v * 100).toFixed(2)),
-                        backgroundColor: 'rgba(129, 140, 248, 0.5)',
-                        borderColor: '#818cf8',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: '启用率 0720-0727',
-                        data: s(enableRate[2]).map(v => (v * 100).toFixed(2)),
-                        backgroundColor: 'rgba(244, 114, 182, 0.6)',
-                        borderColor: '#f472b6',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                    }
-                ]
+                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                datasets: sortedIndices.map((idx, i) => ({
+                    label: catShort[idx],
+                    data: [enableRate[0][idx] * 100, enableRate[1][idx] * 100, enableRate[2][idx] * 100],
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointBackgroundColor: colors[i],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }))
             },
-            plugins: [ChartDataLabels],
             options: {
                 responsive: true,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { labels: { color: '#8892b0', padding: 20 } },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#e0e0e0',
-                        font: { size: 9, weight: 'bold' },
-                        formatter: (v) => v >= 5 ? v + '%' : '',
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#8892b0', padding: 15, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' }
                     },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`
+                        }
+                    }
                 },
                 scales: {
-                    x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { display: false } },
-                    y: { ticks: { color: '#8892b0', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: { ticks: { color: '#8892b0', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: {
+                        title: { display: true, text: '启用率 (%)', color: '#8892b0' },
+                        ticks: { color: '#8892b0', callback: v => v + '%' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
+                    }
                 }
             }
         });
 
-        // ========== PIE CHART ==========
+        // ========== SUBMIT PIE CHART ==========
         const pieData = s(raw.submitTotal[2]);
         const totalSubmits = pieData.reduce((a, b) => a + b, 0);
         new Chart(document.getElementById('pieChart'), {
@@ -506,7 +499,7 @@
                         labels: {
                             color: '#ffffff',
                             padding: 10,
-                            font: { size: 12 },
+                            font: { size: 11 },
                             generateLabels: (chart) => {
                                 const data = chart.data;
                                 return data.labels.map((label, i) => ({
@@ -523,8 +516,8 @@
                         color: '#ffffff',
                         font: { size: 11, weight: 'bold' },
                         formatter: (value) => {
-                            const pct = (value / totalSubmits * 100).toFixed(1);
-                            return pct >= 3 ? `${pct}%` : '';
+                            const p = (value / totalSubmits * 100).toFixed(1);
+                            return p >= 3 ? `${p}%` : '';
                         },
                     },
                     tooltip: {
@@ -534,8 +527,8 @@
                         callbacks: {
                             label: (ctx) => {
                                 const value = ctx.raw;
-                                const pct = (value / totalSubmits * 100).toFixed(1);
-                                return ` ${ctx.label}: ${value.toLocaleString()} (${pct}%)`;
+                                const p = (value / totalSubmits * 100).toFixed(1);
+                                return ` ${ctx.label}: ${value.toLocaleString()} (${p}%)`;
                             }
                         }
                     }
@@ -543,27 +536,81 @@
             }
         });
 
-        // ========== LINE CHART ==========
+        // ========== ENABLE PIE CHART ==========
+        const enablePieData = s(raw.enabled[2]);
+        const totalEnabled = enablePieData.reduce((a, b) => a + b, 0);
+        new Chart(document.getElementById('enablePieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: s(categories),
+                datasets: [{
+                    data: enablePieData,
+                    backgroundColor: colors.map(c => c + 'cc'),
+                    borderColor: '#1a1d35',
+                    borderWidth: 3,
+                    hoverOffset: 20
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                cutout: '50%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 10,
+                            font: { size: 11 },
+                            generateLabels: (chart) => {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: `${label} (${((data.datasets[0].data[i] / totalEnabled) * 100).toFixed(1)}%)`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    strokeStyle: 'transparent',
+                                    fontColor: '#ffffff',
+                                    index: i
+                                }));
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' },
+                        formatter: (value) => {
+                            const p = (value / totalEnabled * 100).toFixed(1);
+                            return p >= 3 ? `${p}%` : '';
+                        },
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (ctx) => {
+                                const value = ctx.raw;
+                                const p = (value / totalEnabled * 100).toFixed(1);
+                                return ` ${ctx.label}: ${value.toLocaleString()} (${p}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // ========== LINE CHART (submitRate vs enableRate, last 2 weeks) ==========
         new Chart(document.getElementById('lineChart'), {
             type: 'line',
             data: {
                 labels: s(catShort),
                 datasets: [
                     {
-                        label: '提交率 0706-0712',
-                        data: s(submitRate[0]).map(v => (v * 100).toFixed(1)),
-                        borderColor: 'rgba(74, 222, 128, 0.6)',
-                        borderWidth: 2, borderDash: [4, 3],
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#4ade80', pointRadius: 4,
-                    },
-                    {
                         label: '提交率 0713-0720',
                         data: s(submitRate[1]).map(v => (v * 100).toFixed(1)),
                         borderColor: 'rgba(129, 140, 248, 0.7)',
-                        borderWidth: 2, borderDash: [4, 3],
+                        borderWidth: 2, borderDash: [6, 4],
                         fill: false, tension: 0.4,
-                        pointBackgroundColor: '#818cf8', pointRadius: 4,
+                        pointBackgroundColor: '#818cf8', pointRadius: 5,
                     },
                     {
                         label: '提交率 0720-0727',
@@ -574,20 +621,12 @@
                         pointBackgroundColor: '#00d4ff', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 6,
                     },
                     {
-                        label: '启用率 0706-0712',
-                        data: s(enableRate[0]).map(v => (v * 100).toFixed(1)),
-                        borderColor: 'rgba(251, 191, 36, 0.6)',
-                        borderWidth: 2, borderDash: [4, 3],
-                        fill: false, tension: 0.4,
-                        pointBackgroundColor: '#fbbf24', pointRadius: 4,
-                    },
-                    {
                         label: '启用率 0713-0720',
                         data: s(enableRate[1]).map(v => (v * 100).toFixed(1)),
                         borderColor: 'rgba(244, 114, 182, 0.7)',
-                        borderWidth: 2, borderDash: [4, 3],
+                        borderWidth: 2, borderDash: [6, 4],
                         fill: false, tension: 0.4,
-                        pointBackgroundColor: '#f472b6', pointRadius: 4,
+                        pointBackgroundColor: '#f472b6', pointRadius: 5,
                     },
                     {
                         label: '启用率 0720-0727',
@@ -603,8 +642,12 @@
                 responsive: true,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { labels: { color: '#8892b0', padding: 12, font: { size: 10 } } },
-                    tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 14, cornerRadius: 10 }
+                    legend: { labels: { color: '#8892b0', padding: 15, font: { size: 11 } } },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                    }
                 },
                 scales: {
                     x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
@@ -612,6 +655,55 @@
                         title: { display: true, text: '百分比 (%)', color: '#8892b0' },
                         ticks: { color: '#8892b0' },
                         grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+
+        // ========== ENABLE COUNT LINE CHART ==========
+        new Chart(document.getElementById('enableLineChart'), {
+            type: 'line',
+            data: {
+                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                datasets: sortedIndices.map((idx, i) => ({
+                    label: catShort[idx],
+                    data: [raw.enabled[0][idx], raw.enabled[1][idx], raw.enabled[2][idx]],
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointBackgroundColor: colors[i],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }))
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#8892b0', padding: 15, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#8892b0', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: {
+                        title: { display: true, text: '启用数', color: '#8892b0' },
+                        ticks: { color: '#8892b0' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
                     }
                 }
             }
@@ -743,8 +835,8 @@
             },
             {
                 name: '个护箱包',
-                tag: 'tag-bad', tagText: '数据异常',
-                text: `可提交池仅143，提交数290已超出池容量（提交率202.8%）。三周启用数均为14，启用率4.83%不变。可提交池过小导致数据指标失真，需确认数据口径或补充池容量。`
+                tag: 'tag-info', tagText: '小体量稳定',
+                text: `可提交池仅143，为全品类最小。提交数290已覆盖池容量（提交率202.8%），说明池内知识已基本提交完毕。三周启用数稳定在14，启用率4.83%。当前重点应放在扩充可提交池容量上。`
             }
         ];
 
