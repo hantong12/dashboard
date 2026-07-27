@@ -233,17 +233,17 @@
         <div class="kpi-cards">
             <div class="kpi-card">
                 <div class="kpi-value">16,648</div>
-                <div class="kpi-label">新增提交数（0720-0727）</div>
+                <div class="kpi-label">新增提交数（0720-0726）</div>
                 <span class="kpi-change up">↑ 8.5% vs 上周</span>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">1,064</div>
-                <div class="kpi-label">新增启用数（0720-0727）</div>
+                <div class="kpi-label">新增启用数（0720-0726）</div>
                 <span class="kpi-change up">↑ 69.7% vs 上周</span>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">-779</div>
-                <div class="kpi-label">新增回复数（0720-0727）</div>
+                <div class="kpi-label">新增回复数（0720-0726）</div>
                 <span class="kpi-change down">↓ 由正转负</span>
             </div>
         </div>
@@ -261,18 +261,18 @@
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>品类新增提交数分布（0720-0727）</h3>
+                <h3>品类新增提交数分布（0720-0726）</h3>
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>品类新增启用数分布（0720-0727）</h3>
+                <h3>品类新增启用数分布（0720-0726）</h3>
                 <canvas id="enablePieChart"></canvas>
             </div>
         </div>
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>本周提交率 vs 启用率（0720-0727）</h3>
+                <h3>本周提交率 vs 启用率（0720-0726）</h3>
                 <canvas id="lineChart"></canvas>
             </div>
             <div class="chart-card">
@@ -318,7 +318,7 @@
             'LAZADA', '3C', '宠物', '汽摩配', '新加坡', '个护箱包'
         ];
 
-        // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0720, w2: 0720-0727]
+        // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0720, w2: 0720-0726]
         const raw = {
             submitTotal: [
                 [14532, 4799, 16549, 1391, 1026, 1496, 84, 874, 355, 97, 136, 288],
@@ -384,7 +384,7 @@
         new Chart(document.getElementById('submitChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                labels: ['0706-0712', '0713-0720', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [raw.submitTotal[0][idx], raw.submitTotal[1][idx], raw.submitTotal[2][idx]],
@@ -434,7 +434,7 @@
         new Chart(document.getElementById('rateChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                labels: ['0706-0712', '0713-0720', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [enableRate[0][idx] * 100, enableRate[1][idx] * 100, enableRate[2][idx] * 100],
@@ -611,7 +611,7 @@
                 labels: s(catShort),
                 datasets: [
                     {
-                        label: '提交率 (0720-0727)',
+                        label: '提交率 (0720-0726)',
                         data: s(submitRate[2]).map(v => (v * 100).toFixed(1)),
                         backgroundColor: 'rgba(0, 212, 255, 0.6)',
                         borderColor: '#00d4ff',
@@ -619,7 +619,7 @@
                         borderRadius: 6,
                     },
                     {
-                        label: '启用率 (0720-0727)',
+                        label: '启用率 (0720-0726)',
                         data: s(enableRate[2]).map(v => (v * 100).toFixed(1)),
                         backgroundColor: 'rgba(244, 114, 182, 0.6)',
                         borderColor: '#f472b6',
@@ -662,7 +662,7 @@
         new Chart(document.getElementById('enableLineChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0720', '0720-0727'],
+                labels: ['0706-0712', '0713-0720', '0720-0726'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
                     data: [raw.enabled[0][idx], raw.enabled[1][idx], raw.enabled[2][idx]],
@@ -730,7 +730,7 @@
             // W2 row (main)
             const r2 = document.createElement('tr');
             r2.innerHTML = `
-                <td><strong>${categories[idx]}</strong><br><span class="week-label" style="background:rgba(0,212,255,0.2);color:#00d4ff;">0720-0727</span></td>
+                <td><strong>${categories[idx]}</strong><br><span class="week-label" style="background:rgba(0,212,255,0.2);color:#00d4ff;">0720-0726</span></td>
                 <td>${fmt(raw.submitTotal[2][idx])}</td>
                 <td>${fmt(raw.enabled[2][idx])}</td>
                 <td>${fmt(raw.submittable[2][idx])}</td>
@@ -780,7 +780,7 @@
             {
                 name: '家具用品',
                 tag: 'tag-good', tagText: '稳步增长',
-                text: `提交数从0706的14,532增至0727的28,603，三周累计翻倍。启用数从366增至1,143，启用率从2.52%提升至3.99%。新增提交率从14.49%升至18.64%，增长势头健康。作为最大品类，贡献了最多的新增提交和启用数。`
+                text: `提交数从0706的14,532增至0726的28,603，三周累计翻倍。启用数从366增至1,143，启用率从2.52%提升至3.99%。新增提交率从14.49%升至18.64%，增长势头健康。作为最大品类，贡献了最多的新增提交和启用数。`
             },
             {
                 name: '运动/母婴',
