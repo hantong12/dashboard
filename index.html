@@ -281,6 +281,32 @@
             </div>
         </div>
 
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>QA回复数总览</h3>
+                <canvas id="qaSummaryChart"></canvas>
+            </div>
+            <div class="chart-card" style="display:flex;align-items:center;justify-content:center;">
+                <div style="text-align:center;">
+                    <div style="font-size:3.5rem;font-weight:700;color:#00d4ff;margin-bottom:10px;">38,425</div>
+                    <div style="font-size:1.2rem;color:#8892b0;margin-bottom:20px;">累计QA回复数（0706-0726）</div>
+                    <div style="display:flex;gap:40px;justify-content:center;">
+                        <div>
+                            <div style="font-size:1.8rem;font-weight:600;color:#818cf8;">12,416</div>
+                            <div style="font-size:0.9rem;color:#6b7280;">上周（0713-0719）</div>
+                        </div>
+                        <div>
+                            <div style="font-size:1.8rem;font-weight:600;color:#f472b6;">13,331</div>
+                            <div style="font-size:0.9rem;color:#6b7280;">本周（0720-0726）</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <span class="kpi-change up">↑ 7.4% vs 上周</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="summary-section">
             <h3>各品类情况总结</h3>
             <div class="summary-grid" id="summaryGrid"></div>
@@ -701,6 +727,64 @@
                     y: {
                         title: { display: true, text: '启用数', color: '#8892b0' },
                         ticks: { color: '#8892b0' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // ========== QA SUMMARY CHART ==========
+        // Calculate total QA replies per week
+        const qaWeeklyTotal = [
+            raw.qaReply[0].reduce((a, b) => a + b, 0),  // 0706-0712
+            raw.qaReply[1].reduce((a, b) => a + b, 0),  // 0713-0719
+            raw.qaReply[2].reduce((a, b) => a + b, 0)   // 0720-0726
+        ];
+        const qaCumulative = qaWeeklyTotal[0] + qaWeeklyTotal[1] + qaWeeklyTotal[2];
+
+        new Chart(document.getElementById('qaSummaryChart'), {
+            type: 'bar',
+            data: {
+                labels: ['0706-0712', '0713-0719', '0720-0726'],
+                datasets: [{
+                    label: 'QA回复数',
+                    data: qaWeeklyTotal,
+                    backgroundColor: [
+                        'rgba(74, 222, 128, 0.6)',
+                        'rgba(129, 140, 248, 0.6)',
+                        'rgba(0, 212, 255, 0.6)'
+                    ],
+                    borderColor: ['#4ade80', '#818cf8', '#00d4ff'],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#e0e0e0',
+                        font: { size: 14, weight: 'bold' },
+                        formatter: (v) => v.toLocaleString()
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: (ctx) => ` QA回复数: ${ctx.raw.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#8892b0', font: { size: 12 } }, grid: { display: false } },
+                    y: {
+                        ticks: { color: '#8892b0', callback: v => v >= 1000 ? (v/1000).toFixed(1) + 'k' : v },
                         grid: { color: 'rgba(255,255,255,0.05)' },
                         beginAtZero: true
                     }
