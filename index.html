@@ -33,7 +33,7 @@
         /* KPI Cards */
         .kpi-cards {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 40px;
         }
@@ -54,11 +54,13 @@
         .kpi-card:nth-child(1) { animation-delay: 0.1s; }
         .kpi-card:nth-child(2) { animation-delay: 0.2s; }
         .kpi-card:nth-child(3) { animation-delay: 0.3s; }
-        .kpi-value { font-size: 3rem; font-weight: 700; margin-bottom: 5px; }
+        .kpi-card:nth-child(4) { animation-delay: 0.4s; }
+        .kpi-value { font-size: 2.8rem; font-weight: 700; margin-bottom: 5px; }
         .kpi-card:nth-child(1) .kpi-value { color: #00d4ff; }
         .kpi-card:nth-child(2) .kpi-value { color: #7c3aed; }
         .kpi-card:nth-child(3) .kpi-value { color: #f472b6; }
-        .kpi-label { font-size: 1rem; color: #8892b0; }
+        .kpi-card:nth-child(4) .kpi-value { color: #4ade80; }
+        .kpi-label { font-size: 0.95rem; color: #8892b0; }
         .kpi-change {
             display: inline-block;
             margin-top: 8px;
@@ -205,6 +207,7 @@
         }
         .week-w0 { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
         .week-w1 { background: rgba(129, 140, 248, 0.2); color: #818cf8; }
+        .week-w2 { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
 
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-30px); }
@@ -227,56 +230,61 @@
     <div class="dashboard">
         <div class="header">
             <h1>中南各品类自学习数据看板</h1>
-            <p class="subtitle">数据周期：2025.07.06 → 07.12 → 07.19 → 07.26（三周趋势）</p>
+            <p class="subtitle">数据周期：2025.07.06 → 07.12 → 07.19 → 07.26 → 08.02（四周趋势）</p>
         </div>
 
         <div class="kpi-cards">
             <div class="kpi-card">
-                <div class="kpi-value">16,648</div>
-                <div class="kpi-label">新增提交数（0720-0726）</div>
-                <span class="kpi-change up">↑ 8.5% vs 上周</span>
+                <div class="kpi-value">15,366</div>
+                <div class="kpi-label">新增提交数（0727-0802）</div>
+                <span class="kpi-change down">↓ 7.7% vs 上周</span>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value">1,064</div>
-                <div class="kpi-label">新增启用数（0720-0726）</div>
-                <span class="kpi-change up">↑ 69.7% vs 上周</span>
+                <div class="kpi-value">6,114</div>
+                <div class="kpi-label">新增启用数（0727-0802）</div>
+                <span class="kpi-change up">↑ 474.8% vs 上周</span>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value">915</div>
-                <div class="kpi-label">新增回复数（0720-0726）</div>
-                <span class="kpi-change up">↑ 由负转正</span>
+                <div class="kpi-value">7,077</div>
+                <div class="kpi-label">新增回复数（0727-0802）</div>
+                <span class="kpi-change up">↑ 672.5% vs 上周</span>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">39.8%</div>
+                <div class="kpi-label">整体启用率（0727-0802）</div>
+                <span class="kpi-change up">↑ 35.8pp vs 上周</span>
             </div>
         </div>
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>各品类新增提交数（三周趋势）</h3>
+                <h3>各品类新增提交数（四周趋势）</h3>
                 <canvas id="submitChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>各品类启用率（三周趋势）</h3>
+                <h3>各品类启用率（四周趋势）</h3>
                 <canvas id="rateChart"></canvas>
             </div>
         </div>
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>品类新增提交数分布（0720-0726）</h3>
+                <h3>品类新增提交数分布（0727-0802）</h3>
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>品类新增启用数分布（0720-0726）</h3>
+                <h3>品类新增启用数分布（0727-0802）</h3>
                 <canvas id="enablePieChart"></canvas>
             </div>
         </div>
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>本周提交率 vs 启用率（0720-0726）</h3>
+                <h3>本周提交率 vs 启用率（0727-0802）</h3>
                 <canvas id="lineChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>各品类启用数（三周趋势）</h3>
+                <h3>各品类启用数（四周趋势）</h3>
                 <canvas id="enableLineChart"></canvas>
             </div>
         </div>
@@ -286,34 +294,19 @@
                 <h3>QA回复数总览</h3>
                 <canvas id="qaSummaryChart"></canvas>
             </div>
-            <div class="chart-card" style="display:flex;align-items:center;justify-content:center;">
-                <div style="text-align:center;">
-                    <div style="font-size:3.5rem;font-weight:700;color:#00d4ff;margin-bottom:10px;">38,425</div>
-                    <div style="font-size:1.2rem;color:#8892b0;margin-bottom:20px;">累计QA回复数（0706-0726）</div>
-                    <div style="display:flex;gap:40px;justify-content:center;">
-                        <div>
-                            <div style="font-size:1.8rem;font-weight:600;color:#818cf8;">12,416</div>
-                            <div style="font-size:0.9rem;color:#6b7280;">上周（0713-0719）</div>
-                        </div>
-                        <div>
-                            <div style="font-size:1.8rem;font-weight:600;color:#f472b6;">13,331</div>
-                            <div style="font-size:0.9rem;color:#6b7280;">本周（0720-0726）</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:15px;">
-                        <span class="kpi-change up">↑ 7.4% vs 上周</span>
-                    </div>
-                </div>
+            <div class="chart-card">
+                <h3>各品类提交率趋势</h3>
+                <canvas id="submitRateTrendChart"></canvas>
             </div>
         </div>
 
         <div class="summary-section">
-            <h3>各品类情况总结</h3>
+            <h3>各品类情况总结（0727-0802）</h3>
             <div class="summary-grid" id="summaryGrid"></div>
         </div>
 
         <div class="table-container">
-            <h3>详细数据表（三周对比）</h3>
+            <h3>详细数据表（四周对比）</h3>
             <table>
                 <thead>
                     <tr>
@@ -344,35 +337,39 @@
             'LAZADA', '3C', '宠物', '汽摩配', '新加坡', '个护箱包'
         ];
 
-        // Three weeks of raw data: [w0: 0706-0712, w1: 0713-0719, w2: 0720-0726]
+        // Four weeks of raw data: [w0: 0706-0712, w1: 0713-0719, w2: 0720-0726, w3: 0727-0802]
         const raw = {
             submitTotal: [
                 [14532, 4799, 16549, 1391, 1026, 1496, 84, 874, 355, 97, 136, 288],
                 [21713, 7499, 18348, 2685, 2066, 2116, 447, 1040, 477, 147, 138, 290],
-                [28603, 10692, 20440, 3777, 3426, 2861, 768, 1359, 970, 297, 141, 290]
+                [28603, 10692, 20440, 3777, 3426, 2861, 768, 1359, 970, 297, 141, 290],
+                [39590, 14869, 22614, 5581, 5472, 3693, 1050, 1734, 1570, 534, 147, 291]
             ],
             enabled: [
                 [366, 158, 1532, 10, 80, 367, 34, 4, 45, 30, 1, 14],
                 [616, 160, 1625, 10, 100, 397, 148, 14, 136, 47, 1, 14],
-                [1143, 178, 1832, 37, 118, 427, 277, 49, 191, 65, 1, 14]
+                [1143, 178, 1832, 37, 118, 427, 277, 49, 191, 65, 1, 14],
+                [6660, 4454, 3739, 98, 498, 1956, 444, 129, 1116, 105, 64, 14]
             ],
             submittable: [
                 [49293, 37922, 16881, 6118, 5895, 4057, 3464, 9381, 4050, 3420, 2712, 198],
                 [47548, 37048, 17185, 5617, 5531, 3724, 6021, 9398, 3954, 3319, 3182, 212],
-                [36960, 31114, 13944, 4854, 4616, 3084, 3144, 7002, 3477, 2653, 2542, 143]
+                [36960, 31114, 13944, 4854, 4616, 3084, 3144, 7002, 3477, 2653, 2542, 143],
+                [34830, 28040, 13533, 4519, 4279, 2742, 3213, 6535, 2822, 2076, 2153, 121]
             ],
             qaReply: [
                 [4061, 1387, 4937, 161, 155, 935, 4, 2, 568, 459, 0, 9],
                 [4108, 1635, 4487, 153, 198, 813, 36, 3, 522, 454, 1, 6],
-                [4476, 1406, 4361, 228, 215, 752, 85, 575, 888, 339, 0, 6]
+                [4476, 1406, 4361, 228, 215, 752, 85, 575, 888, 339, 0, 6],
+                [8310, 5401, 4582, 336, 346, 1100, 140, 940, 1107, 413, 32, 11]
             ]
         };
 
         // Calculate deltas
-        const newSubmit = [[], [], []];
-        const newEnabled = [[], [], []];
-        const newReply = [[], [], []];
-        for (let w = 1; w < 3; w++) {
+        const newSubmit = [[], [], [], []];
+        const newEnabled = [[], [], [], []];
+        const newReply = [[], [], [], []];
+        for (let w = 1; w < 4; w++) {
             for (let i = 0; i < categories.length; i++) {
                 newSubmit[w][i] = raw.submitTotal[w][i] - raw.submitTotal[w-1][i];
                 newEnabled[w][i] = raw.enabled[w][i] - raw.enabled[w-1][i];
@@ -381,22 +378,21 @@
         }
 
         // Calculate rates
-        // submitRate = 新增提交数 / 可提交数 (w0无法计算，设为0)
-        // enableRate = 启用知识数 / 提交知识数
-        const submitRate = [[], [], []];
-        const enableRate = [[], [], []];
+        const submitRate = [[], [], [], []];
+        const enableRate = [[], [], [], []];
         for (let i = 0; i < categories.length; i++) {
-            submitRate[0][i] = 0; // w0 无新增数据
-            submitRate[1][i] = raw.submittable[1][i] > 0 ? newSubmit[1][i] / raw.submittable[1][i] : 0;
-            submitRate[2][i] = raw.submittable[2][i] > 0 ? newSubmit[2][i] / raw.submittable[2][i] : 0;
-            for (let w = 0; w < 3; w++) {
+            submitRate[0][i] = 0;
+            for (let w = 1; w < 4; w++) {
+                submitRate[w][i] = raw.submittable[w][i] > 0 ? newSubmit[w][i] / raw.submittable[w][i] : 0;
+            }
+            for (let w = 0; w < 4; w++) {
                 enableRate[w][i] = raw.submitTotal[w][i] > 0 ? raw.enabled[w][i] / raw.submitTotal[w][i] : 0;
             }
         }
 
-        // Sort by week2 newSubmit descending
+        // Sort by week3 newSubmit descending
         const sortedIndices = [...Array(categories.length).keys()]
-            .sort((a, b) => newSubmit[2][b] - newSubmit[2][a]);
+            .sort((a, b) => newSubmit[3][b] - newSubmit[3][a]);
         const s = (arr) => sortedIndices.map(i => arr[i]);
 
         // Colors
@@ -410,10 +406,10 @@
         new Chart(document.getElementById('submitChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0719', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726', '0727-0802'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
-                    data: [raw.submitTotal[0][idx], raw.submitTotal[1][idx], raw.submitTotal[2][idx]],
+                    data: [raw.submitTotal[0][idx], raw.submitTotal[1][idx], raw.submitTotal[2][idx], raw.submitTotal[3][idx]],
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
                     borderWidth: 2.5,
@@ -460,10 +456,10 @@
         new Chart(document.getElementById('rateChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0719', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726', '0727-0802'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
-                    data: [enableRate[0][idx] * 100, enableRate[1][idx] * 100, enableRate[2][idx] * 100],
+                    data: [enableRate[0][idx] * 100, enableRate[1][idx] * 100, enableRate[2][idx] * 100, enableRate[3][idx] * 100],
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
                     borderWidth: 2.5,
@@ -507,7 +503,7 @@
         });
 
         // ========== SUBMIT PIE CHART ==========
-        const pieData = s(newSubmit[2]);
+        const pieData = s(newSubmit[3]);
         const totalSubmits = pieData.reduce((a, b) => a + b, 0);
         new Chart(document.getElementById('pieChart'), {
             type: 'doughnut',
@@ -569,7 +565,7 @@
         });
 
         // ========== ENABLE PIE CHART ==========
-        const enablePieData = s(newEnabled[2]);
+        const enablePieData = s(newEnabled[3]);
         const totalEnabled = enablePieData.reduce((a, b) => a + b, 0);
         new Chart(document.getElementById('enablePieChart'), {
             type: 'doughnut',
@@ -637,16 +633,16 @@
                 labels: s(catShort),
                 datasets: [
                     {
-                        label: '提交率 (0720-0726)',
-                        data: s(submitRate[2]).map(v => (v * 100).toFixed(1)),
+                        label: '提交率 (0727-0802)',
+                        data: s(submitRate[3]).map(v => (v * 100).toFixed(1)),
                         backgroundColor: 'rgba(0, 212, 255, 0.6)',
                         borderColor: '#00d4ff',
                         borderWidth: 2,
                         borderRadius: 6,
                     },
                     {
-                        label: '启用率 (0720-0726)',
-                        data: s(enableRate[2]).map(v => (v * 100).toFixed(1)),
+                        label: '启用率 (0727-0802)',
+                        data: s(enableRate[3]).map(v => (v * 100).toFixed(1)),
                         backgroundColor: 'rgba(244, 114, 182, 0.6)',
                         borderColor: '#f472b6',
                         borderWidth: 2,
@@ -688,10 +684,10 @@
         new Chart(document.getElementById('enableLineChart'), {
             type: 'line',
             data: {
-                labels: ['0706-0712', '0713-0719', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726', '0727-0802'],
                 datasets: sortedIndices.map((idx, i) => ({
                     label: catShort[idx],
-                    data: [raw.enabled[0][idx], raw.enabled[1][idx], raw.enabled[2][idx]],
+                    data: [raw.enabled[0][idx], raw.enabled[1][idx], raw.enabled[2][idx], raw.enabled[3][idx]],
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
                     borderWidth: 2.5,
@@ -735,27 +731,27 @@
         });
 
         // ========== QA SUMMARY CHART ==========
-        // Calculate total QA replies per week
         const qaWeeklyTotal = [
-            raw.qaReply[0].reduce((a, b) => a + b, 0),  // 0706-0712
-            raw.qaReply[1].reduce((a, b) => a + b, 0),  // 0713-0719
-            raw.qaReply[2].reduce((a, b) => a + b, 0)   // 0720-0726
+            raw.qaReply[0].reduce((a, b) => a + b, 0),
+            raw.qaReply[1].reduce((a, b) => a + b, 0),
+            raw.qaReply[2].reduce((a, b) => a + b, 0),
+            raw.qaReply[3].reduce((a, b) => a + b, 0)
         ];
-        const qaCumulative = qaWeeklyTotal[0] + qaWeeklyTotal[1] + qaWeeklyTotal[2];
 
         new Chart(document.getElementById('qaSummaryChart'), {
             type: 'bar',
             data: {
-                labels: ['0706-0712', '0713-0719', '0720-0726'],
+                labels: ['0706-0712', '0713-0719', '0720-0726', '0727-0802'],
                 datasets: [{
                     label: 'QA回复数',
                     data: qaWeeklyTotal,
                     backgroundColor: [
                         'rgba(74, 222, 128, 0.6)',
                         'rgba(129, 140, 248, 0.6)',
-                        'rgba(0, 212, 255, 0.6)'
+                        'rgba(0, 212, 255, 0.6)',
+                        'rgba(244, 114, 182, 0.6)'
                     ],
-                    borderColor: ['#4ade80', '#818cf8', '#00d4ff'],
+                    borderColor: ['#4ade80', '#818cf8', '#00d4ff', '#f472b6'],
                     borderWidth: 2,
                     borderRadius: 8,
                 }]
@@ -792,6 +788,56 @@
             }
         });
 
+        // ========== SUBMIT RATE TREND CHART ==========
+        new Chart(document.getElementById('submitRateTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['0713-0719', '0720-0726', '0727-0802'],
+                datasets: sortedIndices.map((idx, i) => ({
+                    label: catShort[idx],
+                    data: [submitRate[1][idx] * 100, submitRate[2][idx] * 100, submitRate[3][idx] * 100],
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointBackgroundColor: colors[i],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }))
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#8892b0', padding: 15, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 14,
+                        cornerRadius: 10,
+                        itemSort: (a, b) => b.raw - a.raw,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#8892b0', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: {
+                        title: { display: true, text: '提交率 (%)', color: '#8892b0' },
+                        ticks: { color: '#8892b0', callback: v => v + '%' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
         // ========== TABLE ==========
         const rateClass = (v) => v >= 0.15 ? 'rate-high' : v >= 0.05 ? 'rate-mid' : 'rate-low';
         const fmt = (v) => v.toLocaleString();
@@ -811,18 +857,34 @@
 
         const tbody = document.getElementById('tableBody');
         sortedIndices.forEach((idx) => {
-            // W2 row (main)
+            // W3 row (main)
+            const r3 = document.createElement('tr');
+            r3.innerHTML = `
+                <td><strong>${categories[idx]}</strong><br><span class="week-label" style="background:rgba(244,114,182,0.2);color:#f472b6;">0727-0802</span></td>
+                <td>${fmt(raw.submitTotal[3][idx])}</td>
+                <td>${fmt(raw.enabled[3][idx])}</td>
+                <td>${fmt(raw.submittable[3][idx])}</td>
+                <td>${fmt(raw.qaReply[3][idx])}</td>
+                <td>${fmt(newSubmit[3][idx])}${badge(newSubmit[3][idx], newSubmit[2][idx])}</td>
+                <td>${fmt(newEnabled[3][idx])}${badge(newEnabled[3][idx], newEnabled[2][idx])}</td>
+                <td class="rate-cell ${rateClass(submitRate[3][idx])}">${pct(submitRate[3][idx])}${rateBadge(submitRate[3][idx], submitRate[2][idx])}</td>
+                <td class="rate-cell ${rateClass(enableRate[3][idx])}">${pct(enableRate[3][idx])}${rateBadge(enableRate[3][idx], enableRate[2][idx])}</td>
+            `;
+            tbody.appendChild(r3);
+
+            // W2 row
             const r2 = document.createElement('tr');
+            r2.className = 'week-compare-row';
             r2.innerHTML = `
-                <td><strong>${categories[idx]}</strong><br><span class="week-label" style="background:rgba(0,212,255,0.2);color:#00d4ff;">0720-0726</span></td>
+                <td><span class="week-label week-w2">0720-0726</span></td>
                 <td>${fmt(raw.submitTotal[2][idx])}</td>
                 <td>${fmt(raw.enabled[2][idx])}</td>
                 <td>${fmt(raw.submittable[2][idx])}</td>
                 <td>${fmt(raw.qaReply[2][idx])}</td>
-                <td>${fmt(newSubmit[2][idx])}${badge(newSubmit[2][idx], newSubmit[1][idx])}</td>
-                <td>${fmt(newEnabled[2][idx])}${badge(newEnabled[2][idx], newEnabled[1][idx])}</td>
-                <td class="rate-cell ${rateClass(submitRate[2][idx])}">${pct(submitRate[2][idx])}${rateBadge(submitRate[2][idx], submitRate[1][idx])}</td>
-                <td class="rate-cell ${rateClass(enableRate[2][idx])}">${pct(enableRate[2][idx])}${rateBadge(enableRate[2][idx], enableRate[1][idx])}</td>
+                <td>${fmt(newSubmit[2][idx])}</td>
+                <td>${fmt(newEnabled[2][idx])}</td>
+                <td>${pct(submitRate[2][idx])}</td>
+                <td>${pct(enableRate[2][idx])}</td>
             `;
             tbody.appendChild(r2);
 
@@ -863,63 +925,63 @@
         const summaries = [
             {
                 name: '家具用品',
-                tag: 'tag-good', tagText: '稳步增长',
-                text: `提交数从0706的14,532增至0726的28,603，三周累计翻倍。启用数从366增至1,143，启用率从2.52%提升至3.99%。新增提交率从14.49%升至18.64%，增长势头健康。作为最大品类，贡献了最多的新增提交和启用数。`
+                tag: 'tag-good', tagText: '爆发增长',
+                text: `提交数从0726的28,603增至0802的39,590，新增10,987为全品类最高。启用数从1,143猛增至6,660（+482.8%），启用率从3.99%飙升至16.82%。提交率18.64%保持稳定。本周表现极为亮眼，启用转化效率大幅提升。`
             },
             {
                 name: '运动/母婴',
-                tag: 'tag-warn', tagText: '增速放缓',
-                text: `提交数三周从4,799增至10,692，但可提交数从37,922降至31,114。启用率从3.29%降至1.66%，启用数增长乏力。新增提交率从8.62%升至10.26%，需关注启用转化效率。`
+                tag: 'tag-good', tagText: '启用爆发',
+                text: `提交数从10,692增至14,869，新增4,177。启用数从178猛增至4,454（+24倍），启用率从1.66%飙升至29.95%，跃居全品类前列。提交率10.26%保持稳定。本周启用转化效率质的飞跃。`
             },
             {
                 name: '五金工具',
-                tag: 'tag-good', tagText: '启用率领先',
-                text: `启用率从9.26%降至8.96%但仍为高位。提交数从16,549增至20,440，可提交池从16,881缩至13,944。新增提交率从10.47%升至15.00%。启用数1,832为全品类最高，质量表现突出。`
+                tag: 'tag-good', tagText: '持续领先',
+                text: `提交数从20,440增至22,614，新增2,174。启用数从1,832增至3,739（+104.1%），启用率从8.96%升至16.54%。提交率15.00%保持高位。作为老牌优质品类，本周继续保持强劲增长。`
             },
             {
                 name: '家电',
-                tag: 'tag-bad', tagText: '启用率极低',
-                text: `启用率从0.72%升至0.98%，三周启用数仅从10增至37。提交数从1,391增至3,777，新增提交率从23.04%降至22.50%。启用转化严重不足，需重点排查启用环节瓶颈。`
+                tag: 'tag-warn', tagText: '仍需努力',
+                text: `提交数从3,777增至5,581，新增1,804。启用数从37增至98（+164.9%），启用率从0.98%升至1.76%。提交率22.50%保持高位。虽然启用率大幅提升，但1.76%仍为全品类最低，需继续重点攻关。`
             },
             {
                 name: '灯具',
-                tag: 'tag-warn', tagText: '启用率下滑',
-                text: `启用率从7.80%骤降至3.44%，启用数从80增至118但增速不及提交。提交数从1,026增至3,426，新增提交率从18.80%升至29.47%。需关注提交质量与启用标准的匹配度。`
+                tag: 'tag-good', tagText: '启用翻倍',
+                text: `提交数从3,426增至5,472，新增2,046。启用数从118增至498（+322.0%），启用率从3.44%升至9.10%。提交率29.47%保持高位。本周启用转化效率显著提升，增长势头良好。`
             },
             {
                 name: '家居收纳',
-                tag: 'tag-good', tagText: '高启用率',
-                text: `启用率从24.5%降至14.9%，但仍为全品类第二高。提交数从1,496增至2,861，可提交池从4,057缩至3,084。新增提交率从16.65%升至24.16%，启用数稳步增长至427。`
+                tag: 'tag-good', tagText: '稳步增长',
+                text: `提交数从2,861增至3,693，新增832。启用数从427增至1,956（+357.8%），启用率从14.93%升至52.97%，跃居全品类第二。提交率24.16%保持高位。启用转化效率表现优秀。`
             },
             {
                 name: 'LAZADA',
-                tag: 'tag-good', tagText: '爆发增长',
-                text: `提交数从84增至768（三周增长8倍），启用数从34增至277，启用率从40.5%降至36.1%但仍为全品类最高。新增提交率从6.03%升至10.21%。增长动能强劲，需关注池容量消耗。`
+                tag: 'tag-good', tagText: '持续爆发',
+                text: `提交数从768增至1,050，新增282。启用数从277增至444（+60.3%），启用率从36.07%升至42.29%，继续领跑全品类。提交率10.21%保持稳定。增长动能持续强劲。`
             },
             {
                 name: '3C',
-                tag: 'tag-warn', tagText: '回复量爆发',
-                text: `QA回复数从2猛增至575，新增回复547为全品类最高。提交数从874增至1,359，启用率从0.46%升至3.61%。新增提交率从1.77%升至4.56%，可提交池仍有7,002，增长空间大。`
+                tag: 'tag-warn', tagText: '回复量回落',
+                text: `提交数从1,359增至1,734，新增375。启用数从49增至129（+163.3%），启用率从3.61%升至7.44%。QA回复数从575增至940，新增365。提交率4.56%保持稳定。启用率有所提升但仍需加强。`
             },
             {
                 name: '宠物用品',
-                tag: 'tag-good', tagText: '启用率优秀',
-                text: `启用率从12.7%升至19.7%，为全品类第三高。提交数从355增至970，可提交池从4,050缩至3,477。新增提交率从3.09%升至14.18%，QA回复888为较高水平，知识质量表现好。`
+                tag: 'tag-good', tagText: '启用翻倍',
+                text: `提交数从970增至1,570，新增600。启用数从191增至1,116（+484.3%），启用率从19.69%升至71.08%，跃居全品类最高。提交率14.18%保持稳定。本周启用转化效率表现极为突出。`
             },
             {
                 name: '汽摩配',
-                tag: 'tag-good', tagText: '高启用率',
-                text: `启用率从30.9%降至21.9%，仍为全品类第三。提交数从97增至297，可提交池从3,420缩至2,653。新增提交率从1.51%升至5.65%，池容量充足，有较大增长空间。启用数65，质量稳定。`
+                tag: 'tag-good', tagText: '稳步增长',
+                text: `提交数从297增至534，新增237。启用数从65增至105（+61.5%），启用率从21.89%升至19.66%。提交率5.65%保持稳定。启用数稳步增长，质量表现稳定。`
             },
             {
                 name: '新加坡',
-                tag: 'tag-bad', tagText: '几乎停滞',
-                text: `三周启用数均为1，启用率从0.74%降至0.71%。提交数从136增至141，几乎无增长。可提交池从2,712缩至2,542。新增提交率仅0.12%，需评估该品类的推进策略。`
+                tag: 'tag-good', tagText: '启用突破',
+                text: `提交数从141增至147，新增6。启用数从1增至64（+63倍），启用率从0.71%升至43.54%，实现质的飞跃。提交率0.12%仍为全品类最低。启用率大幅提升是本周最大亮点。`
             },
             {
                 name: '个护箱包',
-                tag: 'tag-info', tagText: '小体量稳定',
-                text: `可提交池仅143，为全品类最小。提交数290已覆盖池容量，说明池内知识已基本提交完毕。三周启用数稳定在14，启用率4.83%。本周新增提交为0，当前重点应放在扩充可提交池容量上。`
+                tag: 'tag-info', tagText: '池容量告急',
+                text: `提交数从290增至291，新增1。可提交池仅121，为全品类最小。启用数稳定在14，启用率4.81%。提交率0%（无新增可提交知识）。当前重点应放在扩充可提交池容量上。`
             }
         ];
 
