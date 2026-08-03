@@ -859,55 +859,64 @@
             }
         }
 
+        const gapData = s(gap[3]);
+        const gapColors = gapData.map(v => v >= 0 ? 'rgba(74, 222, 128, 0.7)' : 'rgba(248, 113, 113, 0.7)');
+        const gapBorders = gapData.map(v => v >= 0 ? '#4ade80' : '#f87171');
+
         new Chart(document.getElementById('gapChart'), {
             type: 'bar',
             data: {
                 labels: s(catShort),
-                datasets: [
-                    {
-                        label: '启用数 (0727-0802)',
-                        data: s(raw.enabled[3]),
-                        backgroundColor: 'rgba(74, 222, 128, 0.6)',
-                        borderColor: '#4ade80',
-                        borderWidth: 2,
-                        borderRadius: 6,
-                    },
-                    {
-                        label: '提交数 (0727-0802)',
-                        data: s(raw.submitTotal[3]),
-                        backgroundColor: 'rgba(244, 114, 182, 0.6)',
-                        borderColor: '#f472b6',
-                        borderWidth: 2,
-                        borderRadius: 6,
-                    }
-                ]
+                datasets: [{
+                    label: '知识缺口 (启用数-提交数)',
+                    data: gapData,
+                    backgroundColor: gapColors,
+                    borderColor: gapBorders,
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
             },
             plugins: [ChartDataLabels],
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { labels: { color: '#8892b0', padding: 20 } },
+                    legend: { display: false },
                     datalabels: {
-                        anchor: 'end',
-                        align: 'top',
+                        anchor: (ctx) => ctx.raw >= 0 ? 'end' : 'start',
+                        align: (ctx) => ctx.raw >= 0 ? 'top' : 'bottom',
                         color: '#e0e0e0',
-                        font: { size: 9, weight: 'bold' },
-                        formatter: (v) => v >= 1000 ? (v/1000).toFixed(1) + 'k' : v,
+                        font: { size: 11, weight: 'bold' },
+                        formatter: (v) => {
+                            const prefix = v >= 0 ? '+' : '';
+                            return Math.abs(v) >= 1000 ? prefix + (v/1000).toFixed(1) + 'k' : prefix + v;
+                        },
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0,0,0,0.85)',
                         padding: 14,
                         cornerRadius: 10,
-                        itemSort: (a, b) => b.raw - a.raw,
+                        callbacks: {
+                            label: (ctx) => {
+                                const value = ctx.raw;
+                                const prefix = value >= 0 ? '+' : '';
+                                return ` 知识缺口: ${prefix}${value.toLocaleString()}`;
+                            }
+                        }
                     }
                 },
                 scales: {
                     x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { display: false } },
                     y: {
-                        title: { display: true, text: '数量', color: '#8892b0' },
-                        ticks: { color: '#8892b0', callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v },
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        beginAtZero: true
+                        title: { display: true, text: '启用数 - 提交数', color: '#8892b0' },
+                        ticks: { 
+                            color: '#8892b0', 
+                            callback: v => {
+                                const prefix = v >= 0 ? '+' : '';
+                                if (Math.abs(v) >= 1000) return prefix + (v/1000).toFixed(0) + 'k';
+                                return prefix + v;
+                            }
+                        },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
                     }
                 }
             }
