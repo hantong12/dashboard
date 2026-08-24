@@ -869,9 +869,10 @@
                         'rgba(129, 140, 248, 0.6)',
                         'rgba(0, 212, 255, 0.6)',
                         'rgba(244, 114, 182, 0.6)',
-                        'rgba(251, 191, 36, 0.6)'
+                        'rgba(251, 191, 36, 0.6)',
+                        'rgba(168, 85, 247, 0.6)'
                     ],
-                    borderColor: ['#4ade80', '#818cf8', '#00d4ff', '#f472b6', '#fbbf24'],
+                    borderColor: ['#4ade80', '#818cf8', '#00d4ff', '#f472b6', '#fbbf24', '#a855f7'],
                     borderWidth: 2,
                     borderRadius: 8,
                 }]
@@ -1100,10 +1101,10 @@
 
         const tbody = document.getElementById('tableBody');
         sortedIndices.forEach((idx) => {
-            // W4 row (main, 0817-0823)
-            const r4 = document.createElement('tr');
-            const gapClass4 = gap[WK][idx] >= 0 ? 'rate-high' : 'rate-low';
-            r4.innerHTML = `
+            // W5 row (main, 0817-0823)
+            const r5 = document.createElement('tr');
+            const gapClass5 = gap[WK][idx] >= 0 ? 'rate-high' : 'rate-low';
+            r5.innerHTML = `
                 <td><strong>${categories[idx]}</strong><br><span class="week-label week-w5">0817-0823</span></td>
                 <td>${fmt(raw.submitTotal[WK][idx])}</td>
                 <td>${fmt(raw.enabled[WK][idx])}</td>
@@ -1114,7 +1115,26 @@
                 <td>${fmt(newEnabled[WK][idx])}${badge(newEnabled[WK][idx], newEnabled[PREV][idx])}</td>
                 <td class="rate-cell ${rateClass(submitRate[WK][idx])}">${pct(submitRate[WK][idx])}${rateBadge(submitRate[WK][idx], submitRate[PREV][idx])}</td>
                 <td class="rate-cell ${rateClass(enableRate[WK][idx])}">${pct(enableRate[WK][idx])}${rateBadge(enableRate[WK][idx], enableRate[PREV][idx])}</td>
-                <td class="rate-cell ${gapClass4}">${gap[WK][idx] >= 0 ? '+' : ''}${fmt(gap[WK][idx])}${badge(gap[WK][idx], gap[PREV][idx])}</td>
+                <td class="rate-cell ${gapClass5}">${gap[WK][idx] >= 0 ? '+' : ''}${fmt(gap[WK][idx])}${badge(gap[WK][idx], gap[PREV][idx])}</td>
+            `;
+            tbody.appendChild(r5);
+
+            // W4 row (0810-0816)
+            const r4 = document.createElement('tr');
+            r4.className = 'week-compare-row';
+            const gapClass4 = gap[4][idx] >= 0 ? 'rate-high' : 'rate-low';
+            r4.innerHTML = `
+                <td><span class="week-label week-w4">0810-0816</span></td>
+                <td>${fmt(raw.submitTotal[4][idx])}</td>
+                <td>${fmt(raw.enabled[4][idx])}</td>
+                <td>${fmt(raw.submittable[4][idx])}</td>
+                <td>${fmt(raw.qaReply[4][idx])}</td>
+                <td>—</td>
+                <td>${fmt(newSubmit[4][idx])}</td>
+                <td>${fmt(newEnabled[4][idx])}</td>
+                <td>${pct(submitRate[4][idx])}</td>
+                <td>${pct(enableRate[4][idx])}</td>
+                <td class="${gapClass4}">${gap[4][idx] >= 0 ? '+' : ''}${fmt(gap[4][idx])}</td>
             `;
             tbody.appendChild(r4);
 
