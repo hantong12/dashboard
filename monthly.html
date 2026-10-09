@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中南各品类自学习月度数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #0c0e1a 0%, #1a1d35 50%, #0c0e1a 100%);
+        color: #e0e0e0; min-height: 100vh; padding: 20px;
+    }
+    .dashboard { max-width: 1400px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 30px; animation: fadeInDown 0.8s ease; }
+    .header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(90deg, #00d4ff, #7c3aed, #f472b6);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
+    }
+    .header .subtitle { color: #8892b0; font-size: 1.1rem; }
+    .header .note { color: #6b7280; font-size: 0.85rem; margin-top: 8px; }
+    .kpi-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 36px; }
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+        backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px; padding: 26px 18px; text-align: center;
+        animation: fadeInUp 0.8s ease; transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .kpi-value { font-size: 2.2rem; font-weight: 700; margin-bottom: 5px; }
+    .kpi-card:nth-child(1) .kpi-value { color: #00d4ff; }
+    .kpi-card:nth-child(2) .kpi-value { color: #7c3aed; }
+    .kpi-card:nth-child(3) .kpi-value { color: #f472b6; }
+    .kpi-card:nth-child(4) .kpi-value { color: #4ade80; }
+    .kpi-card:nth-child(5) .kpi-value { color: #fbbf24; }
+    .kpi-label { font-size: 0.9rem; color: #8892b0; }
+    .kpi-change {
+        display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: 600;
+    }
+    .kpi-change.up { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .kpi-change.down { background: rgba(248,113,113,0.15); color: #f87171; }
+    .kpi-change.flat { background: rgba(136,146,176,0.15); color: #8892b0; }
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; }
+    .chart-card {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px; padding: 25px; animation: fadeInUp 1s ease;
+    }
+    .chart-card h3 { font-size: 1.15rem; margin-bottom: 18px; color: #ccd6f6; }
+    .chart-card .hint { font-size: 0.78rem; color: #6b7280; margin-top: 10px; }
+    .table-container {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px; padding: 25px; overflow-x: auto; animation: fadeInUp 1.2s ease;
+    }
+    .table-container h3 { font-size: 1.2rem; margin-bottom: 20px; color: #ccd6f6; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+        padding: 10px 8px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.88rem; white-space: nowrap;
+    }
+    th { background: rgba(255,255,255,0.05); color: #8892b0; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.3px; }
+    th.m-g { border-left: 1px solid rgba(255,255,255,0.12); }
+    td.m-g { border-left: 1px solid rgba(255,255,255,0.08); }
+    th:first-child, td:first-child { text-align: left; }
+    tr:hover { background: rgba(255,255,255,0.03); }
+    tfoot td { font-weight: 700; color: #e0e0e0; border-top: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); }
+    .rate-high { color: #4ade80; font-weight: 600; }
+    .rate-mid { color: #fbbf24; font-weight: 600; }
+    .rate-low { color: #f87171; font-weight: 600; }
+    .delta-up { color: #4ade80; font-size: 0.75rem; margin-left: 3px; }
+    .delta-down { color: #f87171; font-size: 0.75rem; margin-left: 3px; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1100px) { .kpi-cards { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) {
+        .kpi-cards { grid-template-columns: 1fr; } .charts-grid { grid-template-columns: 1fr; }
+        .header h1 { font-size: 1.7rem; }
+    }
+</style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1>中南各品类自学习月度数据看板</h1>
+        <p class="subtitle">数据周期：2026 年 7 月 / 8 月 / 9 月（自然月汇总）</p>
+        <p class="note">口径：提交数 / 启用数（当月新增启用）/ 自学习回复问题数，取自「知识自学习」看板 · 数据总览（整月区间值）</p>
+    </div>
+
+    <div class="kpi-cards" id="kpis"></div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><h3>各品类自学习回复问题数（9月）</h3><canvas id="replyBar"></canvas></div>
+        <div class="chart-card"><h3>全品类月度趋势（7-9月）</h3><canvas id="trendLine"></canvas></div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><h3>各品类月度提交数</h3><canvas id="submitGroup"></canvas></div>
+        <div class="chart-card"><h3>各品类月度启用数</h3><canvas id="enableGroup"></canvas></div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><h3>各品类回复数月度堆叠</h3><canvas id="replyStack"></canvas></div>
+        <div class="chart-card"><h3>9月回复数品类分布</h3><canvas id="replyPie"></canvas></div>
+    </div>
+
+    <div class="table-container">
+        <h3>月度明细表</h3>
+        <table id="detailTable"></table>
+    </div>
+</div>
+
+<script>
+const D = {"cats":["中南（家具用品）","中南（运动/母婴）","中南（五金工具）","中南（家电）","中南（灯具）","中南（家居收纳）","中南（LAZADA）","中南（3C）","中南（宠物用品）","中南（汽摩配）","中南（新加坡）","中南（个护箱包）"],"shorts":["家具用品","运动/母婴","五金工具","家电","灯具","家居收纳","LAZADA","3C","宠物用品","汽摩配","新加坡","个护箱包"],"months":["2026-07","2026-08","2026-09"],"mlabels":["7月","8月","9月"],"sub":[[28359,9980,7118,4467,4451,2435,949,822,1127,343,13,4],[41395,23368,12912,6520,4899,4163,1728,1689,2016,642,65,1],[33296,24439,26390,3718,4436,4102,1374,4337,928,799,39,0]],"en":[[5211,3968,2314,60,355,1547,397,68,1048,74,61,1],[25236,10507,7989,1611,3425,3007,1515,675,1063,429,88,1],[34172,29856,14745,5795,5478,6553,1121,6424,632,1289,69,0]],"rep":[[19936,8209,19560,825,845,3411,226,1108,2970,1583,11,37],[48467,41011,20450,6958,3705,5852,1079,10969,4880,2895,343,16],[33499,38383,21706,6847,3710,4593,868,11577,3808,2167,403,1]],"top":[70564,48902,29149,7978,9567,12108,3084,8339,2826,1801,221,15]};
+const cats = D.cats, shorts = D.shorts, mlabels = D.mlabels;
+const SUB = D.sub, EN = D.en, REP = D.rep, TOP = D.top;
+const colors = ['#00d4ff','#7c3aed','#f472b6','#4ade80','#fbbf24','#f87171','#818cf8','#2dd4bf','#fb923c','#a78bfa','#38bdf8','#e879f9'];
+const MC = ['#00d4ff', '#f472b6', '#fbbf24'];
+const MONTHS = D.months;
+Chart.register(ChartDataLabels);
+Chart.defaults.color = '#8892b0';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const nz = v => (v == null ? 0 : v);
+const sum = a => a.reduce((x, y) => x + nz(y), 0);
+const fmt = v => (v == null ? '—' : v.toLocaleString());
+const pct = v => (v * 100).toFixed(1) + '%';
+function chg(cur, prev) {
+    if (prev == null || prev === 0) return { t: '—', c: 'flat' };
+    const r = (cur - prev) / prev * 100;
+    return { t: (r >= 0 ? '↑ ' : '↓ ') + Math.abs(r).toFixed(1) + '%', c: r >= 0 ? 'up' : 'down' };
+}
+
+// ---- KPI ----
+(function () {
+    const s9 = sum(SUB[2]), e9 = sum(EN[2]), r9 = sum(REP[2]);
+    const s8 = sum(SUB[1]), e8 = sum(EN[1]), r8 = sum(REP[1]);
+    const qSub = sum(SUB[0].map((_, i) => sum([SUB[0][i], SUB[1][i], SUB[2][i]])));
+    const qEn = sum(EN[0].map((_, i) => sum([EN[0][i], EN[1][i], EN[2][i]])));
+    const rate = qSub ? qEn / qSub : 0;
+    const items = [
+        [fmt(s9), '9月提交数（12品类合计）', chg(s9, s8)],
+        [fmt(e9), '9月启用数（12品类合计）', chg(e9, e8)],
+        [fmt(r9), '9月自学习回复问题数', chg(r9, r8)],
+        [fmt(qSub), '三季度提交合计（7-9月）', null],
+        [pct(rate), '三季度整体启用率', null],
+    ];
+    document.getElementById('kpis').innerHTML = items.map(([v, l, c]) =>
+        `<div class="kpi-card"><div class="kpi-value">${v}</div><div class="kpi-label">${l}</div>` +
+        (c ? `<span class="kpi-change ${c.c}">${c.t} vs 上月</span>` : '') + `</div>`).join('');
+})();
+
+// ---- 图表 ----
+const dl = { color: '#ccd6f6', font: { size: 9, weight: '600' }, anchor: 'end', align: 'end', clamp: true };
+
+// 1. 9月回复数（竖向柱，按值排序）
+(function () {
+    const idx = [...cats.keys()].sort((a, b) => nz(REP[2][b]) - nz(REP[2][a]));
+    new Chart(document.getElementById('replyBar'), {
+        type: 'bar',
+        data: {
+            labels: idx.map(i => shorts[i]),
+            datasets: [{
+                label: '9月回复问题数', data: idx.map(i => nz(REP[2][i])),
+                backgroundColor: idx.map(i => 'rgba(0,212,255,0.65)'),
+                borderColor: '#00d4ff', borderWidth: 1.5, borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, plugins: {
+                legend: { display: false },
+                datalabels: { ...dl, formatter: v => v.toLocaleString() }
+            },
+            scales: { x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                      y: { beginAtZero: true } }
+        }
+    });
+})();
+
+// 2. 月度趋势线
+(function () {
+    new Chart(document.getElementById('trendLine'), {
+        type: 'line',
+        data: {
+            labels: mlabels,
+            datasets: [
+                { label: '提交数', data: MONTHS.map((_, m) => sum(SUB[m])), borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.15)', tension: 0.35, fill: true, pointRadius: 5 },
+                { label: '启用数', data: MONTHS.map((_, m) => sum(EN[m])), borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)', tension: 0.35, fill: true, pointRadius: 5 },
+                { label: '回复问题数', data: MONTHS.map((_, m) => sum(REP[m])), borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.12)', tension: 0.35, fill: true, pointRadius: 5 }
+            ]
+        },
+        options: {
+            responsive: true, plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12 } },
+                datalabels: { color: '#ccd6f6', font: { size: 10, weight: '600' }, align: 'top', formatter: v => v.toLocaleString() }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+})();
+
+// 3/4. 分组柱
+function groupBar(id, data, name, color) {
+    new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: {
+            labels: shorts,
+            datasets: MONTHS.map((m, mi) => ({
+                label: mlabels[mi] + name, data: data[mi].map(nz),
+                backgroundColor: color[mi] + 'CC', borderColor: color[mi], borderWidth: 1.2, borderRadius: 4
+            }))
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } }, datalabels: { display: false } },
+            scales: { x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } }, y: { beginAtZero: true } }
+        }
+    });
+}
+groupBar('submitGroup', SUB, '提交', MC);
+groupBar('enableGroup', EN, '启用', MC);
+
+// 5. 回复数堆叠（每品类 3 个月堆叠）
+(function () {
+    new Chart(document.getElementById('replyStack'), {
+        type: 'bar',
+        data: {
+            labels: shorts,
+            datasets: MONTHS.map((_, mi) => ({
+                label: mlabels[mi], data: REP[mi].map(nz),
+                backgroundColor: MC[mi] + 'CC', borderColor: MC[mi], borderWidth: 1.2, borderRadius: 3
+            }))
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } }, datalabels: { display: false } },
+            scales: { x: { stacked: true, ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                      y: { stacked: true, beginAtZero: true } }
+        }
+    });
+})();
+
+// 6. 9月回复分布饼图
+(function () {
+    const data = REP[2].map(nz), total = sum(data);
+    new Chart(document.getElementById('replyPie'), {
+        type: 'doughnut',
+        data: { labels: shorts, datasets: [{ data: data, backgroundColor: colors.map(c => c + 'CC'), borderColor: '#1a1d35', borderWidth: 2 }] },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+                datalabels: {
+                    color: '#fff', font: { size: 9, weight: '700' },
+                    formatter: (v, ctx) => { const p = total ? v / total * 100 : 0; return p >= 3 ? p.toFixed(0) + '%' : ''; }
+                }
+            }
+        }
+    });
+})();
+
+// ---- 明细表 ----
+(function () {
+    const rows = cats.map((_, i) => i);
+    const qSub = i => sum([SUB[0][i], SUB[1][i], SUB[2][i]]);
+    const qEn = i => sum([EN[0][i], EN[1][i], EN[2][i]]);
+    const qRep = i => sum([REP[0][i], REP[1][i], REP[2][i]]);
+    const rateCls = v => v >= 0.6 ? 'rate-high' : v >= 0.3 ? 'rate-mid' : 'rate-low';
+    const dlt = (cur, prev) => {
+        if (prev == null || prev === 0 || cur == null) return '';
+        const r = (cur - prev) / prev * 100;
+        return `<span class="${r >= 0 ? 'delta-up' : 'delta-down'}">${r >= 0 ? '▲' : '▼'}${Math.abs(r).toFixed(0)}%</span>`;
+    };
+    let html = '<thead><tr><th rowspan="2">品类</th>';
+    mlabels.forEach(m => { html += `<th class="m-g" colspan="3">${m}</th>`; });
+    html += '<th class="m-g" colspan="3">三季度合计</th><th class="m-g" rowspan="2">启用率</th></tr><tr>';
+    mlabels.forEach(() => { html += '<th class="m-g">提交</th><th>启用</th><th>回复</th>'; });
+    html += '<th class="m-g">提交</th><th>启用</th><th>回复</th></tr></thead><tbody>';
+    rows.forEach(i => {
+        html += `<tr><td>${cats[i]}</td>`;
+        MONTHS.forEach((_, m) => {
+            html += `<td class="m-g">${fmt(SUB[m][i])}</td><td>${fmt(EN[m][i])}</td><td>${fmt(REP[m][i])}${m === 2 ? dlt(REP[2][i], REP[1][i]) : ''}</td>`;
+        });
+        const r = qSub(i) ? qEn(i) / qSub(i) : 0;
+        html += `<td class="m-g">${fmt(qSub(i))}</td><td>${fmt(qEn(i))}</td><td>${fmt(qRep(i))}</td>`;
+        html += `<td class="m-g ${rateCls(r)}">${pct(r)}</td></tr>`;
+    });
+    html += '</tbody><tfoot><tr><td>合计</td>';
+    MONTHS.forEach((_, m) => {
+        html += `<td class="m-g">${fmt(sum(SUB[m]))}</td><td>${fmt(sum(EN[m]))}</td><td>${fmt(sum(REP[m]))}</td>`;
+    });
+    const tS = sum(MONTHS.map((_, m) => sum(SUB[m]))), tE = sum(MONTHS.map((_, m) => sum(EN[m]))), tR = sum(MONTHS.map((_, m) => sum(REP[m])));
+    html += `<td class="m-g">${fmt(tS)}</td><td>${fmt(tE)}</td><td>${fmt(tR)}</td>`;
+    html += `<td class="m-g ${rateCls(tS ? tE / tS : 0)}">${pct(tS ? tE / tS : 0)}</td></tr></tfoot>`;
+    document.getElementById('detailTable').innerHTML = html;
+})();
+</script>
+</body>
+</html>
