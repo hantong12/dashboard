@@ -351,6 +351,41 @@
             <div class="summary-grid" id="summaryGrid"></div>
         </div>
 
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>各品类日均回复数（9月 vs 10月）</h3>
+                <canvas id="monthReplyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>各品类剩余可提交数（9月 vs 10月）</h3>
+                <canvas id="monthLeftChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>9-10 月月度总览</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>品类</th>
+                        <th>9月 总计提交数</th>
+                        <th>9月 启用数</th>
+                        <th>9月 剩余可提交数</th>
+                        <th>9月 日均回复数</th>
+                        <th>10月 总计提交数</th>
+                        <th>10月 启用数</th>
+                        <th>10月 剩余可提交数</th>
+                        <th>10月 日均回复数</th>
+                    </tr>
+                </thead>
+                <tbody id="monthTableBody"></tbody>
+            </table>
+            <p style="margin-top:14px;color:#6b7280;font-size:0.78rem;line-height:1.7;">
+                累计值口径：总计提交数=截至该月末的系统累计提交知识总数，启用数=累计启用的知识数（9月取 10/05 抓取的月末快照，10月取 10/26 抓取）。
+                剩余可提交数=当月区间内「自学习提示可吸收的问题数」，日均回复数=当月「自学习回复问题数」÷ 当月天数（9月30天、10月26天）。
+            </p>
+        </div>
+
         <div class="table-container">
             <h3>详细数据表（七周对比）</h3>
             <table>
@@ -1310,6 +1345,63 @@
             `;
             summaryGrid.appendChild(div);
         });
+
+        // ========== 9-10 月月度总览 ==========
+        const monthData = [
+            {cat:"家具用品",sSub:104225,sEn:65434,sLeft:53045,sAvg:1011.1,oSub:115158,oEn:85556,oLeft:57249,oAvg:1659.0},
+            {cat:"运动/母婴",sSub:54261,sEn:44744,sLeft:50032,sAvg:1001.7,oSub:65539,oEn:66881,oLeft:49916,oAvg:1877.8},
+            {cat:"五金工具",sSub:58489,sEn:26623,sLeft:39947,sAvg:583.4,oSub:69872,oEn:41120,oLeft:37929,oAvg:1038.1},
+            {cat:"家电",sSub:14488,sEn:7542,sLeft:10628,sAvg:210.8,oSub:15060,oEn:11551,oLeft:9946,oAvg:379.3},
+            {cat:"灯具",sSub:14442,sEn:9018,sLeft:12905,sAvg:87.8,oSub:15428,oEn:10919,oLeft:13414,oAvg:178.0},
+            {cat:"家居收纳",sSub:9375,sEn:11533,sLeft:2494,sAvg:68.7,oSub:10045,oEn:13600,oLeft:2659,oAvg:80.3},
+            {cat:"LAZADA",sSub:4015,sEn:2941,sLeft:4317,sAvg:27.9,oSub:4546,oEn:3397,oLeft:3608,oAvg:25.5},
+            {cat:"3C",sSub:5011,sEn:7077,sLeft:10202,sAvg:321.6,oSub:5633,oEn:10192,oLeft:12437,oAvg:691.0},
+            {cat:"宠物用品",sSub:4246,sEn:2787,sLeft:5609,sAvg:97.1,oSub:4851,oEn:5289,oLeft:6103,oAvg:186.3},
+            {cat:"汽摩配",sSub:1038,sEn:1799,sLeft:4056,sAvg:9.3,oSub:1049,oEn:3014,oLeft:3900,oAvg:59.8},
+            {cat:"新加坡",sSub:218,sEn:219,sLeft:4436,sAvg:9.9,oSub:227,oEn:229,oLeft:3758,oAvg:13.0},
+            {cat:"个护箱包",sSub:285,sEn:15,sLeft:0,sAvg:0.0,oSub:285,oEn:15,oLeft:0,oAvg:0.0}
+        ];
+        const monthTotal = {cat:'合计',sSub:270093,sEn:179732,sLeft:197671,sAvg:3429.3,oSub:307693,oEn:251763,oLeft:200919,oAvg:6188.1};
+
+        (function () {
+            const tb = document.getElementById('monthTableBody');
+            const fmt = v => v.toLocaleString();
+            const rowHtml = (d, bold) => {
+                const style = bold ? ' style="font-weight:700;border-top:1px solid rgba(255,255,255,0.15);"'
+                                   : '';
+                return `<tr${style}><td>${d.cat}</td>` +
+                    `<td>${fmt(d.sSub)}</td><td>${fmt(d.sEn)}</td><td>${fmt(d.sLeft)}</td><td>${d.sAvg.toFixed(1)}</td>` +
+                    `<td>${fmt(d.oSub)}</td><td>${fmt(d.oEn)}</td><td>${fmt(d.oLeft)}</td><td>${d.oAvg.toFixed(1)}</td></tr>`;
+            };
+            tb.innerHTML = monthData.map(d => rowHtml(d, false)).join('') + rowHtml(monthTotal, true);
+
+            const barOpts = (unit) => ({
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: '#8892b0', font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}${unit}` } }
+                },
+                scales: {
+                    x: { ticks: { color: '#8892b0', font: { size: 10 } }, grid: { display: false } },
+                    y: { ticks: { color: '#8892b0', callback: v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v },
+                         grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+                }
+            });
+            const mk = (id, kSep, kOct, label, colorSep, colorOct) => new Chart(document.getElementById(id), {
+                type: 'bar',
+                data: {
+                    labels: monthData.map(d => d.cat),
+                    datasets: [
+                        { label: '9月', data: monthData.map(d => d[kSep]), backgroundColor: colorSep, borderRadius: 4 },
+                        { label: '10月', data: monthData.map(d => d[kOct]), backgroundColor: colorOct, borderRadius: 4 }
+                    ]
+                },
+                options: barOpts('')
+            });
+            mk('monthReplyChart', 'sAvg', 'oAvg', '日均回复', 'rgba(0,212,255,0.75)', 'rgba(124,58,237,0.75)');
+            mk('monthLeftChart', 'sLeft', 'oLeft', '剩余可提交', 'rgba(74,222,128,0.7)', 'rgba(251,191,36,0.75)');
+        })();
     </script>
 </body>
 </html>
